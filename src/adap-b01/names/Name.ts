@@ -7,37 +7,45 @@ export class Name {
     private delimiter: string = this.DEFAULT_DELIMITER;
 
     constructor(other: string[], delimiter?: string) {
-        throw new Error("needs implementation");
+        this.components = other;
+        this.delimiter = delimiter ?? this.delimiter;
     }
 
     /** Returns human-readable representation of Name instance */
+    /** @methodtype conversion-method */
     public asNameString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+        return this.components.join(delimiter);
     }
 
+    /** @methodtype get-method */
     public getComponent(i: number): string {
-        throw new Error("needs implementation");
+        return this.components[i];
     }
 
+    /** @methodtype set-method */
     public setComponent(i: number, c: string): void {
-        throw new Error("needs implementation");
+        this.components[i] = c;
     }
 
-     /** Returns number of components in Name instance */
-     public getNoComponents(): number {
-        throw new Error("needs implementation");
+    /** Returns number of components in Name instance
+     *  @methodtype get-method */
+    public getNoComponents(): number {
+        return this.components.length;
     }
 
+    /** @methodtype command-method */
     public insert(i: number, c: string): void {
-        throw new Error("needs implementation");
+        this.components = this.components.slice(0, i).concat(c, this.components.slice(i));
     }
 
+    /** @methodtype command-method */
     public append(c: string): void {
-        throw new Error("needs implementation");
+        this.components.push(c);
     }
 
+    /** @methodtype command-method */
     public remove(i: number): void {
-        throw new Error("needs implementation");
+        this.components = this.components.slice(0, i).concat(this.components.slice(i+1));
     }
 
 }
