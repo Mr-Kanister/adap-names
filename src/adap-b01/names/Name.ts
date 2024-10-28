@@ -19,11 +19,13 @@ export class Name {
 
     /** @methodtype get-method */
     public getComponent(i: number): string {
+        if (i < 0 || i >= this.getNoComponents()) throw new Error("Index out of bounds");
         return this.components[i];
     }
 
     /** @methodtype set-method */
     public setComponent(i: number, c: string): void {
+        if (i < 0 || i >= this.getNoComponents()) throw new Error("Index out of bounds");
         this.components[i] = c;
     }
 
@@ -35,6 +37,7 @@ export class Name {
 
     /** @methodtype command-method */
     public insert(i: number, c: string): void {
+        if (i < 0 || i > this.getNoComponents()) throw new Error("Index out of bounds");
         this.components = this.components.slice(0, i).concat(c, this.components.slice(i));
     }
 
@@ -45,6 +48,7 @@ export class Name {
 
     /** @methodtype command-method */
     public remove(i: number): void {
+        if (i < 0 || i >= this.getNoComponents()) throw new Error("Index out of bounds");
         this.components = this.components.slice(0, i).concat(this.components.slice(i+1));
     }
 
