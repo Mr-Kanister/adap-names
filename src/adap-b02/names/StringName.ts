@@ -1,6 +1,4 @@
-import { arrayBuffer } from "stream/consumers";
 import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
-import { StringArrayName } from "./StringArrayName";
 
 export class StringName implements Name {
 
