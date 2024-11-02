@@ -38,22 +38,40 @@ describe("StringArrayName Tests", () => {
 
   it("test asDataString()", () => {
     let n = new StringArrayName(["oss", "cs", "fau", "de"]);
+    let n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss.cs.fau.de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
+    n2 = new StringName(n.asDataString(), "_");
     expect(n.asDataString()).toBe("oss_cs_fau_de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringArrayName(["oss.cs", "fau.de"]);
+    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringArrayName(["oss.cs", "fau.de"], "@");
+    n2 = new StringName(n.asDataString(), "@");
     expect(n.asDataString()).toBe("oss.cs@fau.de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringArrayName(["", "", ""]);
+    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("..");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringArrayName(["oss.cs.fau.de"], "#");
+    n2 = new StringName(n.asDataString(), "#");
     expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
   });
 
   it("test isEmpty()", () => {
@@ -222,22 +240,49 @@ describe("StringName Tests", () => {
 
   it("test asDataString()", () => {
     let n = new StringName("oss.cs.fau.de");
+    let n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss.cs.fau.de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringName("oss_cs_fau_de", "_");
+    n2 = new StringName(n.asDataString(), "_");
     expect(n.asDataString()).toBe("oss_cs_fau_de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringName("oss\\.cs.fau\\.de");
+    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringName("oss.cs@fau.de", "@");
+    n2 = new StringName(n.asDataString(), "@");
     expect(n.asDataString()).toBe("oss.cs@fau.de");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringName("..");
+    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("..");
-
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
     n = new StringName("oss.cs.fau.de", "#");
+    n2 = new StringName(n.asDataString(), "#");
     expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+
+    // edge case
+    n = new StringName("");
+    n.remove(0);
+    n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe("");
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(0);
+    expect(n2.getNoComponents()).toBe(1);
   });
 
   it("test isEmpty()", () => {
