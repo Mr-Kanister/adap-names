@@ -50,5 +50,11 @@ export interface Name extends Printable {
     append(c: string): void;
 
     remove(i: number): void;
+
+    /**
+    * Append a whole name.
+    * Assumes that the other name has the same default delimiter
+    */
+    concat(other: Name): void;
     
 }
