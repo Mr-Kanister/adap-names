@@ -20,10 +20,10 @@ describe("StringArrayName Tests", () => {
     n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
     expect(n.asString()).toBe("oss_cs_fau_de");
 
-    n = new StringArrayName(["oss.cs", "fau.de"]);
+    n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
     expect(n.asString()).toBe("oss.cs.fau.de");
 
-    n = new StringArrayName(["oss.cs", "fau.de"]);
+    n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
     expect(n.asString("@")).toBe("oss.cs@fau.de");
 
     n = new StringArrayName(["oss@cs", "fau@de"]);
@@ -49,7 +49,7 @@ describe("StringArrayName Tests", () => {
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
-    n = new StringArrayName(["oss.cs", "fau.de"]);
+    n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
     n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
     expect(n.asDataString()).toBe(n2.asDataString());
