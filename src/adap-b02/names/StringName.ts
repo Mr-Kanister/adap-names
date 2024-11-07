@@ -22,14 +22,27 @@ export class StringName implements Name {
     public asString(delimiter: string = this.delimiter): string {
         let name = this.name; 
         if (delimiter !== this.delimiter) {
-            const regex = new RegExp(`(?<!\\\\)\\${this.delimiter}`, "g");
+            const regex = new RegExp(`(?<!\\\\)\\${this.getDelimiterCharacter()}`, "g");
             name = name.replaceAll(regex, delimiter);
         }
         return name.replaceAll(ESCAPE_CHARACTER, "");
     }
 
     public asDataString(): string {
-        return this.name;
+        let name = this.name;
+        if (this.getDelimiterCharacter() !== DEFAULT_DELIMITER) {
+            // escape all unescaped default delimiters
+            let regex = new RegExp(`(?<!\\\\)\\${DEFAULT_DELIMITER}`, "g");
+            name = name.replaceAll(regex, ESCAPE_CHARACTER + DEFAULT_DELIMITER);
+            
+            // switch from this.delimiter to default delimiter
+            regex = new RegExp(`(?<!\\\\)\\${this.getDelimiterCharacter()}`, "g");
+            name = name.replaceAll(regex, DEFAULT_DELIMITER);
+            
+            // unescape all escaped this.delimiter's
+            name = name.replaceAll(ESCAPE_CHARACTER + this.getDelimiterCharacter(), this.getDelimiterCharacter());
+        }
+        return name;
     }
 
     public isEmpty(): boolean {

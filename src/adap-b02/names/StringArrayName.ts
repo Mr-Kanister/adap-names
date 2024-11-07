@@ -7,10 +7,11 @@ export class StringArrayName implements Name {
 
     constructor(other: string[], delimiter?: string) {
         if (other.length === 0) throw new Error("At least one component required.");
-        // components get stored unescaped
-        other = other.map(c => c.replaceAll(ESCAPE_CHARACTER, ""));
-        this.components = other;
         this.delimiter = delimiter ?? this.delimiter;
+        // components get stored unescaped
+        const regex = new RegExp(`\\\\\\${this.delimiter}`, "g");
+        other = other.map(c => c.replaceAll(regex, this.delimiter));
+        this.components = other;
     }
 
     public asString(delimiter: string = this.delimiter): string {
@@ -19,11 +20,12 @@ export class StringArrayName implements Name {
     }
 
     public asDataString(): string {
-        // escape any characters that match the delimiter character
-        // and join afterwards
+        // escape any characters that match the default delimiter
+        // and join afterwards with default delimiter
+        const regex = new RegExp(`(?<!\\\\)\\${DEFAULT_DELIMITER}`, "g");
         return this.components.map(c => c.replaceAll(
-            this.delimiter, ESCAPE_CHARACTER + this.delimiter))
-            .join(this.delimiter);
+            regex, ESCAPE_CHARACTER + DEFAULT_DELIMITER))
+            .join(DEFAULT_DELIMITER);
     }
 
     public isEmpty(): boolean {

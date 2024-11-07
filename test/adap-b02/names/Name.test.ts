@@ -44,10 +44,7 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
-    n2 = new StringName(n.asDataString(), "_");
-    expect(n.asDataString()).toBe("oss_cs_fau_de");
-    expect(n.asDataString()).toBe(n2.asDataString());
-    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
     
     n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
     n2 = new StringName(n.asDataString());
@@ -56,10 +53,7 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringArrayName(["oss.cs", "fau.de"], "@");
-    n2 = new StringName(n.asDataString(), "@");
-    expect(n.asDataString()).toBe("oss.cs@fau.de");
-    expect(n.asDataString()).toBe(n2.asDataString());
-    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
     
     n = new StringArrayName(["", "", ""]);
     n2 = new StringName(n.asDataString());
@@ -69,9 +63,12 @@ describe("StringArrayName Tests", () => {
     
     n = new StringArrayName(["oss.cs.fau.de"], "#");
     n2 = new StringName(n.asDataString(), "#");
-    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.asDataString()).toBe("oss\\.cs\\.fau\\.de");
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
+
+    n = new StringArrayName(["m.y", "n\\,a\\\\m\\.e"], ",");
+    expect(n.asDataString()).toBe("m\\.y.n,a\\\\m\\.e");
   });
 
   it("test isEmpty()", () => {
@@ -246,10 +243,7 @@ describe("StringName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringName("oss_cs_fau_de", "_");
-    n2 = new StringName(n.asDataString(), "_");
-    expect(n.asDataString()).toBe("oss_cs_fau_de");
-    expect(n.asDataString()).toBe(n2.asDataString());
-    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
     
     n = new StringName("oss\\.cs.fau\\.de");
     n2 = new StringName(n.asDataString());
@@ -258,10 +252,7 @@ describe("StringName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringName("oss.cs@fau.de", "@");
-    n2 = new StringName(n.asDataString(), "@");
-    expect(n.asDataString()).toBe("oss.cs@fau.de");
-    expect(n.asDataString()).toBe(n2.asDataString());
-    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
     
     n = new StringName("..");
     n2 = new StringName(n.asDataString());
@@ -271,9 +262,7 @@ describe("StringName Tests", () => {
     
     n = new StringName("oss.cs.fau.de", "#");
     n2 = new StringName(n.asDataString(), "#");
-    expect(n.asDataString()).toBe("oss.cs.fau.de");
-    expect(n.asDataString()).toBe(n2.asDataString());
-    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    expect(n.asDataString()).toBe("oss\\.cs\\.fau\\.de");
 
     // edge case
     n = new StringName("");
@@ -283,6 +272,9 @@ describe("StringName Tests", () => {
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(0);
     expect(n2.getNoComponents()).toBe(1);
+
+    n = new StringName("m.y,n\\,a\\\\m\\.e", ",");
+    expect(n.asDataString()).toBe("m\\.y.n,a\\\\m\\.e");
   });
 
   it("test isEmpty()", () => {
