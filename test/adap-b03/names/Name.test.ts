@@ -38,55 +38,72 @@ describe("StringArrayName Tests", () => {
 
   it("test toString()", () => {
     let n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    expect(n.toString()).toBe("oss.cs.fau.de");
-
-    n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
-    expect(n.toString()).toBe("oss_cs_fau_de");
-
-    n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
-    expect(n.toString()).toBe("oss\\.cs.fau\\.de");
-
-    n = new StringArrayName(["oss@cs", "fau@de"]);
-    expect(n.toString()).toBe("oss@cs.fau@de");
-
-    n = new StringArrayName(["", "", ""]);
-    expect(n.toString()).toBe("..");
-
-    n = new StringArrayName(["oss.cs.fau.de"], "#");
-    expect(n.toString()).toBe("oss.cs.fau.de");
-  });
-
-  it("test asDataString()", () => {
-    let n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    let n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss.cs.fau.de");
+    let n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
-    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.asDataString()).toBe("oss_cs_fau_de");
+    n2 = new StringName(n.asDataString(), "_");
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
-    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
+    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringArrayName(["oss.cs", "fau.de"], "@");
-    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
+    expect(n.asDataString()).toBe("oss.cs@fau.de");
     
     n = new StringArrayName(["", "", ""]);
-    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("..");
+    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringArrayName(["oss.cs.fau.de"], "#");
-    expect(n.asDataString()).toBe("oss\\.cs\\.fau\\.de");
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
     expect(n.getNoComponents()).toBe(1);
 
     n = new StringArrayName(["m.y", "n\\,a\\\\m\\.e"], ",");
-    expect(n.asDataString()).toBe("m\\.y.n,a\\\\m\\.e");
+    expect(n.asDataString()).toBe("m.y,n\\,a\\\\m\\.e");
+  });
+
+  it("test asDataString()", () => {
+    let n = new StringArrayName(["oss", "cs", "fau", "de"]);
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    let n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
+    n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
+    expect(n.asDataString()).toBe("oss_cs_fau_de");
+    n2 = new StringName(n.asDataString(), "_");
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
+    n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
+    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
+    n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
+    n = new StringArrayName(["oss.cs", "fau.de"], "@");
+    expect(n.asDataString()).toBe("oss.cs@fau.de");
+    
+    n = new StringArrayName(["", "", ""]);
+    expect(n.asDataString()).toBe("..");
+    n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
+    n = new StringArrayName(["oss.cs.fau.de"], "#");
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.getNoComponents()).toBe(1);
+
+    n = new StringArrayName(["m.y", "n\\,a\\\\m\\.e"], ",");
+    expect(n.asDataString()).toBe("m.y,n\\,a\\\\m\\.e");
   });
 
   it("test isEmpty()", () => {
@@ -106,7 +123,7 @@ describe("StringArrayName Tests", () => {
     n = new StringArrayName(["", "", "", ""], "/");
     expect(n.getDelimiterCharacter()).toBe("/");
 
-    n = new StringArrayName(["Oh\.\.\."]);
+    n = new StringArrayName(["Oh\\.\\.\\."]);
     expect(n.getDelimiterCharacter()).toBe(".");
   });
 
@@ -127,7 +144,7 @@ describe("StringArrayName Tests", () => {
     n = new StringArrayName(["", "", "", ""], "/");
     expect(n.getNoComponents()).toBe(4);
 
-    n = new StringArrayName(["Oh\.\.\."]);
+    n = new StringArrayName(["Oh\\.\\.\\."]);
     expect(n.getNoComponents()).toBe(1);
   });
 
@@ -228,8 +245,9 @@ describe("StringArrayName Tests", () => {
     n.concat(new StringName("fau.de"));
     expect(n.asString()).toBe("oss.cs.fau.de");
 
-    n = new StringArrayName(["oss", "cs"], "@");
-    expect(() => n.concat(new StringArrayName(["fau", "de"]))).toThrowError();
+    n = new StringArrayName(["oss\\@cs"], "@");
+    n.concat(new StringArrayName(["fau@de"]));
+    expect(n.asDataString()).toBe("oss\\@cs@fau\\@de");
 
     n = new StringArrayName(["oss\\.tf", "cs"]);
     n.concat(new StringArrayName(["fau", "de"]));
@@ -241,7 +259,7 @@ describe("StringArrayName Tests", () => {
 
     n = new StringArrayName(["oss", "cs"], "/");
     n.concat(new StringArrayName(["fau\\/", "de"], "/"));
-    expect(n.asDataString()).toBe("oss.cs.fau/.de");
+    expect(n.asDataString()).toBe("oss/cs/fau\\//de");
   });
 
   it("test getHashCode()", () => {
@@ -351,33 +369,13 @@ describe("StringName Tests", () => {
 
   it("test toString()", () => {
     let n = new StringName("oss.cs.fau.de");
-    expect(n.toString()).toBe("oss.cs.fau.de");
-
-    n = new StringName("oss_cs_fau_de", "_");
-    expect(n.toString()).toBe("oss_cs_fau_de");
-
-    n = new StringName("oss\\.cs.fau\\.de");
-    expect(n.toString()).toBe("oss\\.cs.fau\\.de");
-
-    n = new StringName("oss@cs.fau@de");
-    expect(n.toString()).toBe("oss@cs.fau@de");
-
-    n = new StringName("..");
-    expect(n.toString()).toBe("..");
-
-    n = new StringName("oss.cs.fau.de", "#");
-    expect(n.toString()).toBe("oss.cs.fau.de");
-  });
-
-  it("test asDataString()", () => {
-    let n = new StringName("oss.cs.fau.de");
-    let n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("oss.cs.fau.de");
+    let n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringName("oss_cs_fau_de", "_");
-    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.asDataString()).toBe("oss_cs_fau_de");
     
     n = new StringName("oss\\.cs.fau\\.de");
     n2 = new StringName(n.asDataString());
@@ -386,17 +384,17 @@ describe("StringName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringName("oss.cs@fau.de", "@");
-    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
+    expect(n.asDataString()).toBe("oss.cs@fau.de");
     
     n = new StringName("..");
-    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe("..");
+    n2 = new StringName(n.asDataString());
     expect(n.asDataString()).toBe(n2.asDataString());
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
     
     n = new StringName("oss.cs.fau.de", "#");
     n2 = new StringName(n.asDataString(), "#");
-    expect(n.asDataString()).toBe("oss\\.cs\\.fau\\.de");
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
 
     // edge case
     n = new StringName("");
@@ -408,7 +406,49 @@ describe("StringName Tests", () => {
     expect(n2.getNoComponents()).toBe(1);
 
     n = new StringName("m.y,n\\,a\\\\m\\.e", ",");
-    expect(n.asDataString()).toBe("m\\.y.n,a\\\\m\\.e");
+    expect(n.asDataString()).toBe("m.y,n\\,a\\\\m\\.e");
+  });
+
+  it("test asDataString()", () => {
+    let n = new StringName("oss.cs.fau.de");
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    let n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
+    n = new StringName("oss_cs_fau_de", "_");
+    expect(n.asDataString()).toBe("oss_cs_fau_de");
+    
+    n = new StringName("oss\\.cs.fau\\.de");
+    n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
+    n = new StringName("oss.cs@fau.de", "@");
+    expect(n.asDataString()).toBe("oss.cs@fau.de");
+    
+    n = new StringName("..");
+    expect(n.asDataString()).toBe("..");
+    n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    
+    n = new StringName("oss.cs.fau.de", "#");
+    n2 = new StringName(n.asDataString(), "#");
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
+
+    // edge case
+    n = new StringName("");
+    n.remove(0);
+    n2 = new StringName(n.asDataString());
+    expect(n.asDataString()).toBe("");
+    expect(n.asDataString()).toBe(n2.asDataString());
+    expect(n.getNoComponents()).toBe(0);
+    expect(n2.getNoComponents()).toBe(1);
+
+    n = new StringName("m.y,n\\,a\\\\m\\.e", ",");
+    expect(n.asDataString()).toBe("m.y,n\\,a\\\\m\\.e");
   });
 
   it("test isEmpty()", () => {
@@ -428,7 +468,7 @@ describe("StringName Tests", () => {
     n = new StringName("///", "/");
     expect(n.getDelimiterCharacter()).toBe("/");
 
-    n = new StringName("Oh\.\.\.");
+    n = new StringName("Oh\\.\\.\\.");
     expect(n.getDelimiterCharacter()).toBe(".");
   });
 
@@ -571,7 +611,12 @@ describe("StringName Tests", () => {
     expect(n.asString()).toBe("oss.cs.fau.de");
 
     n = new StringName("oss@cs", "@");
-    expect(() => n.concat(new StringName("fau.de"))).toThrowError();
+    n.concat(new StringName("fau.de"));
+    expect(n.asDataString()).toBe("oss@cs@fau@de");
+
+    n = new StringName("oss\\@cs", "@");
+    n.concat(new StringName("fau@de"))
+    expect(n.asDataString()).toBe("oss\\@cs@fau\\@de");
 
     n = new StringName("oss\\.tf.cs");
     n.concat(new StringName("fau.de"));
@@ -583,7 +628,7 @@ describe("StringName Tests", () => {
 
     n = new StringName("oss/cs", "/");
     n.concat(new StringName("fau\\/de", "/"));
-    expect(n.asDataString()).toBe("oss.cs.fau/de");
+    expect(n.asDataString()).toBe("oss/cs/fau\\/de");
   });
 
   it("test getHashCode()", () => {

@@ -1,5 +1,5 @@
-import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
-import { joinUnescapedComponents, unescape } from "./utils";
+import { Name, DEFAULT_DELIMITER } from "./Name";
+import { unescape, escape } from "./utils";
 
 export abstract class AbstractName implements Name {
 
@@ -20,20 +20,23 @@ export abstract class AbstractName implements Name {
 
     // returns escaped string
     public toString(): string {
+        return this.asDataString();
+    }
+
+    // returns escaped string
+    public asDataString(): string {
+        // old spec version: only default delimiter
+        // const unescapedComponents = [];
+        // for (let i = 0; i < this.getNoComponents(); i++) {
+        //     unescapedComponents.push(unescape(this.getComponent(i), this.delimiter));
+        // }
+        // return joinUnescapedComponents(unescapedComponents, DEFAULT_DELIMITER);
+
         const escapedComponents = [];
         for (let i = 0; i < this.getNoComponents(); i++) {
             escapedComponents.push(this.getComponent(i));
         }
         return escapedComponents.join(this.delimiter);
-    }
-
-    // returns escaped string with default delimiter
-    public asDataString(): string {
-        const unescapedComponents = [];
-        for (let i = 0; i < this.getNoComponents(); i++) {
-            unescapedComponents.push(unescape(this.getComponent(i), this.delimiter));
-        }
-        return joinUnescapedComponents(unescapedComponents, DEFAULT_DELIMITER);
     }
 
     public isEqual(other: Name): boolean {
@@ -75,10 +78,9 @@ export abstract class AbstractName implements Name {
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        if (other.getDelimiterCharacter() !== this.getDelimiterCharacter())
-            throw new Error("The name has the wrong delimiter.");
+        const otherDelim = other.getDelimiterCharacter();
         for (let i = 0; i < other.getNoComponents(); i++) {
-            this.append(other.getComponent(i));
+            this.append(escape(unescape(other.getComponent(i), otherDelim), this.delimiter));
         }
     }
 }
