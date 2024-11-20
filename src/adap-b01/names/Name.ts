@@ -1,11 +1,24 @@
+export const DEFAULT_DELIMITER: string = '.';
+export const ESCAPE_CHARACTER = '\\';
+
+/**
+ * A name is a sequence of string components separated by a delimiter character.
+ * Special characters within the string may need masking, if they are to appear verbatim.
+ * There are only two special characters, the delimiter character and the escape character.
+ * The escape character can't be set, the delimiter character can.
+ * 
+ * Homogenous name examples
+ * 
+ * "oss.cs.fau.de" is a name with four name components and the delimiter character '.'.
+ * "///" is a name with four empty components and the delimiter character '/'.
+ * "Oh\.\.\." is a name with one component, if the delimiter character is '.'.
+ */
 export class Name {
 
-    public readonly DEFAULT_DELIMITER: string = '.';
-    private readonly ESCAPE_CHARACTER = '\\';
-
+    private delimiter: string = DEFAULT_DELIMITER;
     private components: string[] = [];
-    private delimiter: string = this.DEFAULT_DELIMITER;
 
+    /** Expects that all Name components are properly masked */
     constructor(other: string[], delimiter?: string) {
         this.components = other;
         this.delimiter = delimiter ?? this.delimiter;
@@ -24,6 +37,7 @@ export class Name {
     }
 
     /** @methodtype set-method */
+    /** Expects that new Name component c is properly masked */
     public setComponent(i: number, c: string): void {
         if (i < 0 || i >= this.getNoComponents()) throw new Error("Index out of bounds");
         this.components[i] = c;
@@ -36,12 +50,14 @@ export class Name {
     }
 
     /** @methodtype command-method */
+    /** Expects that new Name component c is properly masked */
     public insert(i: number, c: string): void {
         if (i < 0 || i > this.getNoComponents()) throw new Error("Index out of bounds");
         this.components = this.components.slice(0, i).concat(c, this.components.slice(i));
     }
 
     /** @methodtype command-method */
+    /** Expects that new Name component c is properly masked */
     public append(c: string): void {
         this.components.push(c);
     }

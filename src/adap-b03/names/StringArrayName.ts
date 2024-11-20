@@ -1,5 +1,5 @@
 import { AbstractName } from "./AbstractName";
-import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
+import { Name} from "./Name";
 import { escape, unescape } from "./utils";
 
 export class StringArrayName extends AbstractName implements Name {

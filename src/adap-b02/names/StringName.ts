@@ -1,11 +1,11 @@
-import { Name, DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "./Name";
+import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
+import { Name } from "./Name";
 
 export class StringName implements Name {
 
     protected delimiter: string = DEFAULT_DELIMITER;
-
     protected name: string = "";
-    protected length: number = 0;
+    protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
         this.name = other;
@@ -16,7 +16,7 @@ export class StringName implements Name {
         // specified.
         this.delimiter = delimiter ?? this.delimiter;
         const regex = new RegExp(`(?<!\\\\)\\${this.getDelimiterCharacter()}`);
-        this.length = other.split(regex).length;
+        this.noComponents = other.split(regex).length;
     }
 
     public asString(delimiter: string = this.delimiter): string {
@@ -46,7 +46,7 @@ export class StringName implements Name {
     }
 
     public isEmpty(): boolean {
-        return this.length ? false : true;
+        return this.noComponents ? false : true;
     }
 
     public getDelimiterCharacter(): string {
@@ -54,7 +54,7 @@ export class StringName implements Name {
     }
 
     public getNoComponents(): number {
-        return this.length;
+        return this.noComponents;
     }
 
     public getComponent(i: number): string {
@@ -81,12 +81,12 @@ export class StringName implements Name {
         let array = this.name.split(regex);
         array.splice(i, 0, c);
         this.name = array.join(this.delimiter);
-        this.length += 1;
+        this.noComponents += 1;
     }
 
     public append(c: string): void {
         this.name += this.delimiter + c;
-        this.length += 1;
+        this.noComponents += 1;
     }
 
     public remove(i: number): void {
@@ -97,14 +97,14 @@ export class StringName implements Name {
         let array = this.name.split(regex);
         array.splice(i, 1);
         this.name = array.join(this.delimiter);
-        this.length -= 1;
+        this.noComponents -= 1;
     }
 
     public concat(other: Name): void {
         if (other.getDelimiterCharacter() !== this.getDelimiterCharacter())
             throw new Error("The name has the wrong delimiter.");
 
-        this.length += other.getNoComponents();
+        this.noComponents += other.getNoComponents();
         this.name += this.delimiter + other.asDataString();
     }
 }
