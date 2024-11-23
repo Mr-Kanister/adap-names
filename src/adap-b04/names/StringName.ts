@@ -1,75 +1,163 @@
-import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
-import { Name } from "./Name";
+import { InvalidStateException } from "../common/InvalidStateException";
 import { AbstractName } from "./AbstractName";
+import { Name } from "./Name";
+import { checkEscaped, splitString } from "./utils";
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
+import { MethodFailureException } from "../common/MethodFailureException";
 
-export class StringName extends AbstractName {
+export class StringName extends AbstractName implements Name {
 
     protected name: string = "";
     protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation");
+        // precondition
+        IllegalArgumentException.assertIsNotNullOrUndefined(other);
+
+        super(delimiter);
+        this.name = other;
+        // split string at all unescaped delimiters to count the
+        // length of the name
+        // Note: the escaping inside the regex does not handle
+        // multiple character long strings as that behaviour isn't
+        // specified.
+        this.noComponents = splitString(this.name, this.delimiter).length;
+
+        // postcondition
+        MethodFailureException.assertCondition(this.noComponents > 0, "noComponents should have positive value.");
+        MethodFailureException.assertCondition(
+            StringName.instanceIsStringName(this),
+            "Instance doesn't fulfill prototype of StringName",
+        );
+    }
+    
+    protected static instanceIsStringName(instance: any): instance is StringName {
+        return super.instanceIsAbstractName(instance) &&
+            "name" in instance && typeof instance.name === "string" &&
+            "noComponents" in instance && typeof instance.noComponents === "number";
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation");
+    protected static assertInstanceIsStringName(instance: any) {
+        InvalidStateException.assertCondition(
+            StringName.instanceIsStringName(instance),
+            "Instance doesn't fulfill prototype of StringName."
+        );
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation");
+    public override getNoComponents(): number {
+        StringName.assertInstanceIsStringName(this);
+
+        const res = this.noComponents;
+
+        // postcondition
+        MethodFailureException.assertCondition(res >= 0, "Must return non negative.");
+
+        return res;
     }
 
-    public toString(): string {
-        throw new Error("needs implementation");
+    // return escaped
+    public override getComponent(i: number): string {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        IllegalArgumentException.assertCondition(i >= 0 && i < this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+
+        const res = splitString(this.name, this.delimiter)[i];
+
+        // postcondition
+        MethodFailureException.assertIsNotNullOrUndefined(res);
+        MethodFailureException.assertCondition(checkEscaped(res, this.getDelimiterCharacter()), `Component (${res}) must be escaped.`);
+
+        return res;
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation");
+    public override setComponent(i: number, c: string): void {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        IllegalArgumentException.assertCondition(i >= 0 && i < this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+        IllegalArgumentException.assertIsNotNullOrUndefined(c);
+        IllegalArgumentException.assertCondition(checkEscaped(c, this.getDelimiterCharacter()), `Component (${c}) must be escaped.`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            i,
+            0,
+            () => {
+                const array = splitString(this.name, this.delimiter);
+                array[i] = c;
+                this.name = array.join(this.delimiter);
+            },
+            this.reset([this.getComponent(i)]),
+        );
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation");
+    public override insert(i: number, c: string): void {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        IllegalArgumentException.assertCondition(i >= 0 && i <= this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+        IllegalArgumentException.assertIsNotNullOrUndefined(c);
+        IllegalArgumentException.assertCondition(checkEscaped(c, this.getDelimiterCharacter()), `Component (${c}) must be escaped.`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            i,
+            1,
+            () => {
+                const array = splitString(this.name, this.delimiter);
+                array.splice(i, 0, c);
+                this.name = array.join(this.delimiter);
+                this.noComponents += 1;
+            },
+            this.reset([]),
+        );
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation");
+    public override append(c: string): void {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        IllegalArgumentException.assertIsNotNullOrUndefined(c);
+        IllegalArgumentException.assertCondition(checkEscaped(c, this.getDelimiterCharacter()), `Component (${c}) must be escaped.`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            this.getNoComponents(),
+            1,
+            () => {
+                this.name += this.delimiter + c;
+                this.noComponents += 1;
+            },
+            this.reset([]),
+        );
     }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation");
+    public override remove(i: number): void {
+        StringName.assertInstanceIsStringName(this);
+        // precondition
+        IllegalArgumentException.assertCondition(i >= 0 && i < this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            i,
+            -1,
+            () => {
+                const array = splitString(this.name, this.delimiter);
+                array.splice(i, 1);
+                this.name = array.join(this.delimiter);
+                this.noComponents -= 1;
+            },
+            this.reset([this.getComponent(i)]),
+        );
     }
 
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation");
+    // all components are expected to be escaped
+    private reset(componentsBetween: string[]) {
+        return (componentsBefore: string[], componentsAfter: string[]) => {
+            const allComponents = componentsBefore.concat(componentsBetween.concat(componentsAfter));
+            this.name = allComponents.join(this.getDelimiterCharacter());
+            this.noComponents = componentsBefore.length + componentsBetween.length + componentsAfter.length;
+        }
     }
-
-    public getNoComponents(): number {
-        throw new Error("needs implementation");
-    }
-
-    public getComponent(i: number): string {
-        throw new Error("needs implementation");
-    }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation");
-    }
-
 }
