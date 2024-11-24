@@ -6,23 +6,6 @@ import { AbstractName } from "../../../src/adap-b04/names/AbstractName";
 import { IllegalArgumentException } from "../../../src/adap-b04/common/IllegalArgumentException";
 import { InvalidStateException } from "../../../src/adap-b04/common/InvalidStateException";
 
-function assertAllInvalidState(n: AbstractName) {
-  expect(() => n.clone()).toThrowError(InvalidStateException);
-  expect(() => n.asString()).toThrowError(InvalidStateException);
-  expect(() => n.asDataString()).toThrowError(InvalidStateException);
-  expect(() => n.getDelimiterCharacter()).toThrowError(InvalidStateException);
-  expect(() => n.isEqual(new StringArrayName([""]))).toThrowError(InvalidStateException);
-  expect(() => n.getHashCode()).toThrowError(InvalidStateException);
-  expect(() => n.isEmpty()).toThrowError(InvalidStateException);
-  expect(() => n.getNoComponents()).toThrowError(InvalidStateException);
-  expect(() => n.getComponent(0)).toThrowError(InvalidStateException);
-  expect(() => n.setComponent(0, "s")).toThrowError(InvalidStateException);
-  expect(() => n.insert(0, "s")).toThrowError(InvalidStateException);
-  expect(() => n.append("s")).toThrowError(InvalidStateException);
-  expect(() => n.remove(0)).toThrowError(InvalidStateException);
-  expect(() => n.concat(new StringArrayName([""]))).toThrowError(InvalidStateException);
-}
-
 describe("StringArrayName Tests", () => {
   it("test invalid construction", () => {
     // https://www.studon.fau.de/frm4447999_385940.html
@@ -108,9 +91,7 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
 
     n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
-    expect(n.asDataString()).toBe("oss_cs_fau_de");
-    n2 = new StringName(n.asDataString(), "_");
-    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
 
     n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
     expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
@@ -119,7 +100,7 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
 
     n = new StringArrayName(["oss.cs", "fau.de"], "@");
-    expect(n.asDataString()).toBe("oss.cs@fau.de");
+    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
 
     n = new StringArrayName(["", "", ""]);
     expect(n.asDataString()).toBe("..");
@@ -128,11 +109,11 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
 
     n = new StringArrayName(["oss.cs.fau.de"], "#");
-    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.asDataString()).toBe("oss\\.cs\\.fau\\.de");
     expect(n.getNoComponents()).toBe(1);
 
     n = new StringArrayName(["m.y", "n\\,a\\\\m.e"], ",");
-    expect(n.asDataString()).toBe("m.y,n\\,a\\\\m.e");
+    expect(n.asDataString()).toBe("m\\.y.n,a\\\\m\\.e");
   });
 
   it("test asDataString()", () => {
@@ -143,9 +124,7 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
 
     n = new StringArrayName(["oss", "cs", "fau", "de"], "_");
-    expect(n.asDataString()).toBe("oss_cs_fau_de");
-    n2 = new StringName(n.asDataString(), "_");
-    expect(n.getNoComponents()).toBe(n2.getNoComponents());
+    expect(n.asDataString()).toBe("oss.cs.fau.de");
 
     n = new StringArrayName(["oss\\.cs", "fau\\.de"]);
     expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
@@ -154,7 +133,7 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
 
     n = new StringArrayName(["oss.cs", "fau.de"], "@");
-    expect(n.asDataString()).toBe("oss.cs@fau.de");
+    expect(n.asDataString()).toBe("oss\\.cs.fau\\.de");
 
     n = new StringArrayName(["", "", ""]);
     expect(n.asDataString()).toBe("..");
@@ -163,11 +142,11 @@ describe("StringArrayName Tests", () => {
     expect(n.getNoComponents()).toBe(n2.getNoComponents());
 
     n = new StringArrayName(["oss.cs.fau.de"], "#");
-    expect(n.asDataString()).toBe("oss.cs.fau.de");
+    expect(n.asDataString()).toBe("oss\\.cs\\.fau\\.de");
     expect(n.getNoComponents()).toBe(1);
 
     n = new StringArrayName(["m.y", "n\\,a\\\\m.e"], ",");
-    expect(n.asDataString()).toBe("m.y,n\\,a\\\\m.e");
+    expect(n.asDataString()).toBe("m\\.y.n,a\\\\m\\.e");
   });
 
   it("test isEmpty()", () => {
@@ -332,7 +311,7 @@ describe("StringArrayName Tests", () => {
 
     n = new StringArrayName(["oss\\@cs"], "@");
     n.concat(new StringArrayName(["fau@de"]));
-    expect(n.asDataString()).toBe("oss\\@cs@fau\\@de");
+    expect(n.asDataString()).toBe("oss@cs.fau@de");
 
     n = new StringArrayName(["oss\\.tf", "cs"]);
     n.concat(new StringArrayName(["fau", "de"]));
@@ -344,7 +323,7 @@ describe("StringArrayName Tests", () => {
 
     n = new StringArrayName(["oss", "cs"], "/");
     n.concat(new StringArrayName(["fau\\/", "de"], "/"));
-    expect(n.asDataString()).toBe("oss/cs/fau\\//de");
+    expect(n.asDataString()).toBe("oss.cs.fau/.de");
   });
 
   it("test getHashCode()", () => {

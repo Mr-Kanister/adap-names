@@ -15,9 +15,9 @@ export function splitString(str: string, delim: string) {
     return str.split(regex);
 }
 
-// export function joinUnescapedComponents(components: string[], delim: string) {
-//     return components.map(c => escape(c, delim)).join(delim);
-// }
+export function joinUnescapedComponents(components: string[], delim: string) {
+    return components.map(c => escape(c, delim)).join(delim);
+}
 
 export function checkEscaped(str: string, delim: string) {
     let nextCharEscaped = false;

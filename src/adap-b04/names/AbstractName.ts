@@ -1,5 +1,5 @@
 import { DEFAULT_DELIMITER } from "../common/Printable";
-import { unescape, escape, checkEscaped } from "./utils";
+import { unescape, escape, checkEscaped, joinUnescapedComponents } from "./utils";
 import { Name } from "./Name";
 import { InvalidStateException } from "../common/InvalidStateException";
 import { MethodFailureException } from "../common/MethodFailureException";
@@ -81,7 +81,11 @@ export abstract class AbstractName implements Name {
     public toString(): string {
         AbstractName.assertInstanceIsAbstractName(this);
 
-        const res = this.asDataString();
+        const escapedComponents = [];
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            escapedComponents.push(this.getComponent(i));
+        }
+        const res = escapedComponents.join(this.delimiter);
 
         // postcondition
         MethodFailureException.assertIsNotNullOrUndefined(res);
@@ -92,11 +96,11 @@ export abstract class AbstractName implements Name {
     public asDataString(): string {
         AbstractName.assertInstanceIsAbstractName(this);
 
-        const escapedComponents = [];
+        const unescapedComponents = [];
         for (let i = 0; i < this.getNoComponents(); i++) {
-            escapedComponents.push(this.getComponent(i));
+            unescapedComponents.push(unescape(this.getComponent(i), this.delimiter));
         }
-        const res = escapedComponents.join(this.delimiter);
+        const res = joinUnescapedComponents(unescapedComponents, DEFAULT_DELIMITER);
 
         // postcondition
         MethodFailureException.assertIsNotNullOrUndefined(res);
