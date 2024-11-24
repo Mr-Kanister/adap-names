@@ -1,3 +1,4 @@
+import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { Name } from "../names/Name";
 import { Directory } from "./Directory";
 
@@ -7,11 +8,18 @@ export class Node {
     protected parentNode: Directory;
 
     constructor(bn: string, pn: Directory) {
+        // precondition
+        IllegalArgumentException.assertIsNotNullOrUndefined(pn);
+        IllegalArgumentException.assertCondition(typeof bn === "string", "basename must be at least one character long.");
+
         this.doSetBaseName(bn);
         this.parentNode = pn;
     }
 
     public move(to: Directory): void {
+        // precondition
+        IllegalArgumentException.assertIsNotNullOrUndefined(to);
+
         this.parentNode.remove(this);
         to.add(this);
     }
@@ -31,10 +39,16 @@ export class Node {
     }
 
     public rename(bn: string): void {
+        // precondition
+        IllegalArgumentException.assertCondition(typeof bn === "string" && bn.length > 0, "basename must be at least one character long.");
+
         this.doSetBaseName(bn);
     }
 
     protected doSetBaseName(bn: string): void {
+        // precondition
+        IllegalArgumentException.assertCondition(typeof bn === "string" && bn.length > 0, "basename must be at least one character long.");
+        
         this.baseName = bn;
     }
 
