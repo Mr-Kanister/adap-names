@@ -3,7 +3,7 @@ import { IllegalArgumentException } from "../common/IllegalArgumentException";
 import { AbstractName } from "./AbstractName";
 import { Name } from "./Name";
 import { checkEscaped, escape, unescape } from "./utils";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export class StringArrayName extends AbstractName implements Name {
 
@@ -26,7 +26,7 @@ export class StringArrayName extends AbstractName implements Name {
         this.components = other;
 
         // postcondition
-        MethodFailureException.assertCondition(
+        MethodFailedException.assertCondition(
             StringArrayName.instanceIsStringArrayName(this),
             "Instance doesn't fulfill prototype of StringArrayName",
         );
@@ -51,7 +51,7 @@ export class StringArrayName extends AbstractName implements Name {
         const res = this.components.length;
 
         // postcondition
-        MethodFailureException.assertCondition(res >= 0, "Must return non negative.");
+        MethodFailedException.assertCondition(res >= 0, "Must return non negative.");
 
         return res;
     }
@@ -66,8 +66,8 @@ export class StringArrayName extends AbstractName implements Name {
         const component = escape(this.components[i], this.delimiter);
 
         // postcondition
-        MethodFailureException.assertIsNotNullOrUndefined(component);
-        MethodFailureException.assertCondition(checkEscaped(component, this.getDelimiterCharacter()), "Component must be escaped.");
+        MethodFailedException.assertIsNotNullOrUndefined(component);
+        MethodFailedException.assertCondition(checkEscaped(component, this.getDelimiterCharacter()), "Component must be escaped.");
 
         return component;
     }

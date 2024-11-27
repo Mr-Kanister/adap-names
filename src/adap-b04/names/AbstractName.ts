@@ -2,7 +2,7 @@ import { DEFAULT_DELIMITER } from "../common/Printable";
 import { unescape, escape, checkEscaped, joinUnescapedComponents } from "./utils";
 import { Name } from "./Name";
 import { InvalidStateException } from "../common/InvalidStateException";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
 
 export abstract class AbstractName implements Name {
@@ -19,7 +19,7 @@ export abstract class AbstractName implements Name {
         this.delimiter = delimiter ?? this.delimiter;
 
         // postcondition
-        MethodFailureException.assertCondition(
+        MethodFailedException.assertCondition(
             AbstractName.instanceIsAbstractName(this),
             "Instance doesn't fulfill prototype of AbstractName",
         );
@@ -72,7 +72,7 @@ export abstract class AbstractName implements Name {
         const res = unescapedComponents.join(delimiter);
 
         // postcondition
-        MethodFailureException.assertIsNotNullOrUndefined(res);
+        MethodFailedException.assertIsNotNullOrUndefined(res);
         // assertion of string being unescaped not possible due to edge cases
 
         return res;
@@ -88,7 +88,7 @@ export abstract class AbstractName implements Name {
         const res = escapedComponents.join(this.delimiter);
 
         // postcondition
-        MethodFailureException.assertIsNotNullOrUndefined(res);
+        MethodFailedException.assertIsNotNullOrUndefined(res);
 
         return res;
     }
@@ -103,7 +103,7 @@ export abstract class AbstractName implements Name {
         const res = joinUnescapedComponents(unescapedComponents, DEFAULT_DELIMITER);
 
         // postcondition
-        MethodFailureException.assertIsNotNullOrUndefined(res);
+        MethodFailedException.assertIsNotNullOrUndefined(res);
 
         return res;
     }
@@ -138,7 +138,7 @@ export abstract class AbstractName implements Name {
         const res = Object.create(this);
 
         // postcondition
-        MethodFailureException.assertCondition(
+        MethodFailedException.assertCondition(
             AbstractName.instanceIsName(res),
             "Result has to be an instance of Name."
         );
@@ -158,7 +158,7 @@ export abstract class AbstractName implements Name {
         const res = this.delimiter;
 
         // postcondition
-        MethodFailureException.assertCondition(res.length === 1, "Delimiter has to be a one character string.");
+        MethodFailedException.assertCondition(res.length === 1, "Delimiter has to be a one character string.");
 
         return res;
     }
@@ -214,14 +214,14 @@ export abstract class AbstractName implements Name {
         try {
             apply();
 
-            MethodFailureException.assertCondition(this.getNoComponents() === lengthBefore + delta, "Unexpected number of components");
+            MethodFailedException.assertCondition(this.getNoComponents() === lengthBefore + delta, "Unexpected number of components");
 
             for (let i = 0; i < componentsBefore.length; i++) {
-                MethodFailureException.assertCondition(componentsBefore[i] === this.getComponent(i), `Untouched component changed from ${componentsBefore[i]} to ${this.getComponent(i)}.`);
+                MethodFailedException.assertCondition(componentsBefore[i] === this.getComponent(i), `Untouched component changed from ${componentsBefore[i]} to ${this.getComponent(i)}.`);
             }
             startingIndex = delta === -1 ? index : index + 1;
             for (let i = 0; i < componentsAfter.length; i++) {
-                MethodFailureException.assertCondition(componentsAfter[i] === this.getComponent(startingIndex + i), `Untouched component changed from ${componentsAfter[i]} to ${this.getComponent(startingIndex+i)}.`);
+                MethodFailedException.assertCondition(componentsAfter[i] === this.getComponent(startingIndex + i), `Untouched component changed from ${componentsAfter[i]} to ${this.getComponent(startingIndex+i)}.`);
             }
         } catch (e) {
             reset(componentsBefore, componentsAfter);

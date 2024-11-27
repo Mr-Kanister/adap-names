@@ -3,7 +3,7 @@ import { AbstractName } from "./AbstractName";
 import { Name } from "./Name";
 import { checkEscaped, splitString } from "./utils";
 import { IllegalArgumentException } from "../common/IllegalArgumentException";
-import { MethodFailureException } from "../common/MethodFailureException";
+import { MethodFailedException } from "../common/MethodFailedException";
 
 export class StringName extends AbstractName implements Name {
 
@@ -24,8 +24,8 @@ export class StringName extends AbstractName implements Name {
         this.noComponents = splitString(this.name, this.delimiter).length;
 
         // postcondition
-        MethodFailureException.assertCondition(this.noComponents > 0, "noComponents should have positive value.");
-        MethodFailureException.assertCondition(
+        MethodFailedException.assertCondition(this.noComponents > 0, "noComponents should have positive value.");
+        MethodFailedException.assertCondition(
             StringName.instanceIsStringName(this),
             "Instance doesn't fulfill prototype of StringName",
         );
@@ -50,7 +50,7 @@ export class StringName extends AbstractName implements Name {
         const res = this.noComponents;
 
         // postcondition
-        MethodFailureException.assertCondition(res >= 0, "Must return non negative.");
+        MethodFailedException.assertCondition(res >= 0, "Must return non negative.");
 
         return res;
     }
@@ -65,8 +65,8 @@ export class StringName extends AbstractName implements Name {
         const res = splitString(this.name, this.delimiter)[i];
 
         // postcondition
-        MethodFailureException.assertIsNotNullOrUndefined(res);
-        MethodFailureException.assertCondition(checkEscaped(res, this.getDelimiterCharacter()), `Component (${res}) must be escaped.`);
+        MethodFailedException.assertIsNotNullOrUndefined(res);
+        MethodFailedException.assertCondition(checkEscaped(res, this.getDelimiterCharacter()), `Component (${res}) must be escaped.`);
 
         return res;
     }
