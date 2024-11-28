@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 
-import { IllegalArgumentException } from "../../../src/adap-b04/common/IllegalArgumentException";
-import { MethodFailedException } from "../../../src/adap-b04/common/MethodFailedException";
-import { InvalidStateException } from "../../../src/adap-b04/common/InvalidStateException";
+import { IllegalArgumentException } from "../../../src/adap-b05/common/IllegalArgumentException";
+import { MethodFailedException } from "../../../src/adap-b05/common/MethodFailedException";
+import { InvalidStateException } from "../../../src/adap-b05/common/InvalidStateException";
 
 describe("Asserting not null or undefined", () => {
   it("test asserIsNotNullOrUndefined", async () => {

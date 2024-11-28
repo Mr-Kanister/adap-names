@@ -1,44 +1,164 @@
-import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
+import { DEFAULT_DELIMITER } from "../common/Printable";
+import { unescape, escape, joinUnescapedComponents } from "./utils";
 import { Name } from "./Name";
+import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 
 export abstract class AbstractName implements Name {
 
     protected delimiter: string = DEFAULT_DELIMITER;
 
     constructor(delimiter: string = DEFAULT_DELIMITER) {
-        throw new Error("needs implementation or deletion");
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,
+            typeof delimiter === "string" && delimiter.length === 1,
+            "Delimiter has to be a one character string."
+        );
+
+        this.delimiter = delimiter ?? this.delimiter;
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,
+            AbstractName.instanceIsAbstractName(this),
+            "Instance doesn't fulfill prototype of AbstractName",
+        );
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+    protected static instanceIsName(instance: any): instance is Name {
+        return "asString" in instance && typeof instance.asString === "function" &&
+            "asDataString" in instance && typeof instance.asDataString === "function" &&
+            "getDelimiterCharacter" in instance && typeof instance.getDelimiterCharacter === "function" &&
+            "clone" in instance && typeof instance.clone === "function" &&
+            "isEqual" in instance && typeof instance.isEqual === "function" &&
+            "getHashCode" in instance && typeof instance.getHashCode === "function" &&
+            "isEmpty" in instance && typeof instance.isEmpty === "function" &&
+            "getNoComponents" in instance && typeof instance.getNoComponents === "function" &&
+            "getComponent" in instance && typeof instance.getComponent === "function" &&
+            "setComponent" in instance && typeof instance.setComponent === "function" &&
+            "insert" in instance && typeof instance.insert === "function" &&
+            "append" in instance && typeof instance.append === "function" &&
+            "remove" in instance && typeof instance.remove === "function" &&
+            "concat" in instance && typeof instance.concat === "function";
     }
 
+    protected static instanceIsAbstractName(instance: any): instance is AbstractName {
+        return AbstractName.instanceIsName(instance) && "delimiter" in instance &&
+            typeof instance.delimiter === "string" && instance.delimiter.length === 1;
+    }
+
+    protected static assertInstanceIsAbstractName(instance: any) {
+        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT,
+            AbstractName.instanceIsAbstractName(instance),
+            "Instance doesn't fulfill AbstractName prototype."
+        );
+    }
+
+    // returns unescaped string
     public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, 
+            typeof delimiter === "string" && delimiter.length === 1,
+            "Delimiter has to be a one character string."
+        );
+
+        const unescapedComponents = [];
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            unescapedComponents.push(unescape(this.getComponent(i), this.delimiter));
+        }
+
+        const res = unescapedComponents.join(delimiter);
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, res !== undefined && res !== null, "Should be defined");
+        // assertion of string being unescaped not possible due to edge cases
+
+        return res;
     }
 
     public toString(): string {
-        return this.asDataString();
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        const escapedComponents = [];
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            escapedComponents.push(this.getComponent(i));
+        }
+        const res = escapedComponents.join(this.delimiter);
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, res !== undefined && res !== null, "Should be defined");
+
+        return res;
     }
 
     public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        const unescapedComponents = [];
+        for (let i = 0; i < this.getNoComponents(); i++) {
+            unescapedComponents.push(unescape(this.getComponent(i), this.delimiter));
+        }
+        const res = joinUnescapedComponents(unescapedComponents, DEFAULT_DELIMITER);
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, res !== undefined && res !== null, "Should be defined");
+
+        return res;
     }
 
     public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, AbstractName.instanceIsName(other), "other has to be instance of Name.");
+
+        return this.asDataString() === other.asDataString() &&
+            this.getDelimiterCharacter() === other.getDelimiterCharacter();
     }
 
     public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        let hashCode: number = 0;
+        const s: string = this.toString() + this.getDelimiterCharacter();
+        for (let i = 0; i < s.length; i++) {
+            let c = s.charCodeAt(i);
+            hashCode = (hashCode << 5) - hashCode + c;
+            hashCode |= 0;
+        }
+        return hashCode;
+    }
+
+    // shallow copy
+    public clone(): Name {
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        const res = Object.create(this);
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,
+            AbstractName.instanceIsName(res),
+            "Result has to be an instance of Name."
+        );
+
+        return res;
     }
 
     public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        return this.getNoComponents() ? false : true;
     }
 
     public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        const res = this.delimiter;
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,res.length === 1, "Delimiter has to be a one character string.");
+
+        return res;
     }
 
     abstract getNoComponents(): number;
@@ -51,7 +171,59 @@ export abstract class AbstractName implements Name {
     abstract remove(i: number): void;
 
     public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
+        AbstractName.assertInstanceIsAbstractName(this);
+
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, AbstractName.instanceIsName(other), "other has to be instance of Name.");
+
+        const otherDelim = other.getDelimiterCharacter();
+        for (let i = 0; i < other.getNoComponents(); i++) {
+            this.append(escape(unescape(other.getComponent(i), otherDelim), this.delimiter));
+        }
+
+        // postcondition not possible as restoring the state would have
+        // to happen in a concrete class.
     }
 
+
+
+    // postcondition
+    // index: index at which a component gets changed
+    // delta: -1 for remove, 0 for set, 1 for insert/append
+    // apply: function to call before assertion
+    // reset(componentsBefore, componentsAfter): function to call if assertion fails
+    protected tryBeforeAfterUnchanged(
+        index: number,
+        delta: number,
+        apply: Function,
+        reset: (cB: string[], cA: string[]) => void,
+    ) {
+        const lengthBefore = this.getNoComponents();
+        const componentsBefore = [];
+        for (let i = 0; i < index; i++) {
+            componentsBefore.push(this.getComponent(i));
+        }
+        const componentsAfter = [];
+        let startingIndex = delta === 0 || delta === -1 ? index + 1 : index;
+        for (let i = startingIndex; i < this.getNoComponents(); i++) {
+            componentsAfter.push(this.getComponent(i));
+        }
+
+        try {
+            apply();
+
+            AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,this.getNoComponents() === lengthBefore + delta, "Unexpected number of components");
+
+            for (let i = 0; i < componentsBefore.length; i++) {
+                AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,componentsBefore[i] === this.getComponent(i), `Untouched component changed from ${componentsBefore[i]} to ${this.getComponent(i)}.`);
+            }
+            startingIndex = delta === -1 ? index : index + 1;
+            for (let i = 0; i < componentsAfter.length; i++) {
+                AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,componentsAfter[i] === this.getComponent(startingIndex + i), `Untouched component changed from ${componentsAfter[i]} to ${this.getComponent(startingIndex+i)}.`);
+            }
+        } catch (e) {
+            reset(componentsBefore, componentsAfter);
+            throw e;
+        }
+    }
 }

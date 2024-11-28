@@ -21,20 +21,28 @@ export class RootNode extends Directory {
     }
 
     public getFullName(): Name {
+        
         return new StringName("", '/');
     }
 
     public move(to: Directory): void {
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, false, "Root can't be moved");
         // null operation
     }
 
     protected doSetBaseName(bn: string): void {
+        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
         // null operation
     }
 
     protected assertIsValidBaseName(bn: string, et: ExceptionType): void {
         const condition: boolean = (bn == ""); // Root must have "" as base name
         AssertionDispatcher.dispatch(et, condition, "invalid base name");
+    }
+
+    protected assertClassInvariants(): void {
+        const bn: string = this.doGetBaseName();
+        this.assertIsValidBaseName(bn, ExceptionType.CLASS_INVARIANT);
     }
 
 }

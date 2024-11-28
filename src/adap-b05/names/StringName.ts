@@ -1,71 +1,162 @@
-import { DEFAULT_DELIMITER, ESCAPE_CHARACTER } from "../common/Printable";
-import { Name } from "./Name";
+import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 import { AbstractName } from "./AbstractName";
+import { Name } from "./Name";
+import { checkEscaped, splitString } from "./utils";
 
-export class StringName extends AbstractName {
+export class StringName extends AbstractName implements Name {
 
     protected name: string = "";
     protected noComponents: number = 0;
 
     constructor(other: string, delimiter?: string) {
-        super();
-        throw new Error("needs implementation or deletion");
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, other !== undefined && other !== null, "Should be defined");
+        
+        super(delimiter);
+        this.name = other;
+        // split string at all unescaped delimiters to count the
+        // length of the name
+        // Note: the escaping inside the regex does not handle
+        // multiple character long strings as that behaviour isn't
+        // specified.
+        this.noComponents = splitString(this.name, this.delimiter).length;
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,this.noComponents > 0, "noComponents should have positive value.");
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,
+            StringName.instanceIsStringName(this),
+            "Instance doesn't fulfill prototype of StringName",
+        );
+    }
+    
+    protected static instanceIsStringName(instance: any): instance is StringName {
+        return super.instanceIsAbstractName(instance) &&
+            "name" in instance && typeof instance.name === "string" &&
+            "noComponents" in instance && typeof instance.noComponents === "number";
     }
 
-    public clone(): Name {
-        throw new Error("needs implementation or deletion");
+    protected static assertInstanceIsStringName(instance: any) {
+        AssertionDispatcher.dispatch(ExceptionType.CLASS_INVARIANT,
+            StringName.instanceIsStringName(instance),
+            "Instance doesn't fulfill prototype of StringName."
+        );
     }
 
-    public asString(delimiter: string = this.delimiter): string {
-        throw new Error("needs implementation or deletion");
+    public override getNoComponents(): number {
+        StringName.assertInstanceIsStringName(this);
+
+        const res = this.noComponents;
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,res >= 0, "Must return non negative.");
+
+        return res;
     }
 
-    public asDataString(): string {
-        throw new Error("needs implementation or deletion");
+    // return escaped
+    public override getComponent(i: number): string {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,i >= 0 && i < this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+
+        const res = splitString(this.name, this.delimiter)[i];
+
+        // postcondition
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION, res !== undefined && res !== null, "Should be defined");
+        
+        AssertionDispatcher.dispatch(ExceptionType.POSTCONDITION,checkEscaped(res, this.getDelimiterCharacter()), `Component (${res}) must be escaped.`);
+
+        return res;
     }
 
-    public isEqual(other: Name): boolean {
-        throw new Error("needs implementation or deletion");
+    public override setComponent(i: number, c: string): void {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, c !== undefined && c !== null, "Should be defined");
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,i >= 0 && i < this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,checkEscaped(c, this.getDelimiterCharacter()), `Component (${c}) must be escaped.`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            i,
+            0,
+            () => {
+                const array = splitString(this.name, this.delimiter);
+                array[i] = c;
+                this.name = array.join(this.delimiter);
+            },
+            this.reset([this.getComponent(i)]),
+        );
     }
 
-    public getHashCode(): number {
-        throw new Error("needs implementation or deletion");
+    public override insert(i: number, c: string): void {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,i >= 0 && i <= this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, c !== undefined && c !== null, "Should be defined");
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,checkEscaped(c, this.getDelimiterCharacter()), `Component (${c}) must be escaped.`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            i,
+            1,
+            () => {
+                const array = splitString(this.name, this.delimiter);
+                array.splice(i, 0, c);
+                this.name = array.join(this.delimiter);
+                this.noComponents += 1;
+            },
+            this.reset([]),
+        );
     }
 
-    public isEmpty(): boolean {
-        throw new Error("needs implementation or deletion");
+    public override append(c: string): void {
+        StringName.assertInstanceIsStringName(this);
+
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, c !== undefined && c !== null, "Should be defined");
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,checkEscaped(c, this.getDelimiterCharacter()), `Component (${c}) must be escaped.`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            this.getNoComponents(),
+            1,
+            () => {
+                this.name += this.delimiter + c;
+                this.noComponents += 1;
+            },
+            this.reset([]),
+        );
     }
 
-    public getDelimiterCharacter(): string {
-        throw new Error("needs implementation or deletion");
+    public override remove(i: number): void {
+        StringName.assertInstanceIsStringName(this);
+        // precondition
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION,i >= 0 && i < this.getNoComponents(), `Index ${i} out of bounds (0-${this.getNoComponents()})`);
+
+        // postcondition
+        this.tryBeforeAfterUnchanged(
+            i,
+            -1,
+            () => {
+                const array = splitString(this.name, this.delimiter);
+                array.splice(i, 1);
+                this.name = array.join(this.delimiter);
+                this.noComponents -= 1;
+            },
+            this.reset([this.getComponent(i)]),
+        );
     }
 
-    public getNoComponents(): number {
-        throw new Error("needs implementation or deletion");
+    // all components are expected to be escaped
+    private reset(componentsBetween: string[]) {
+        return (componentsBefore: string[], componentsAfter: string[]) => {
+            const allComponents = componentsBefore.concat(componentsBetween.concat(componentsAfter));
+            this.name = allComponents.join(this.getDelimiterCharacter());
+            this.noComponents = componentsBefore.length + componentsBetween.length + componentsAfter.length;
+        }
     }
-
-    public getComponent(i: number): string {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public setComponent(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public insert(i: number, c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public append(c: string) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public remove(i: number) {
-        throw new Error("needs implementation or deletion");
-    }
-
-    public concat(other: Name): void {
-        throw new Error("needs implementation or deletion");
-    }
-
 }

@@ -1,6 +1,7 @@
 import { Node } from "./Node";
 import { Directory } from "./Directory";
 import { MethodFailedException } from "../common/MethodFailedException";
+import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
 
 enum FileState {
     OPEN,
@@ -17,6 +18,7 @@ export class File extends Node {
     }
 
     public open(): void {
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, this.doGetFileState() === FileState.CLOSED, "File must be closed");
         // do something
     }
 
@@ -44,6 +46,7 @@ export class File extends Node {
     }
 
     public close(): void {
+        AssertionDispatcher.dispatch(ExceptionType.PRECONDITION, this.doGetFileState() === FileState.OPEN, "File must be opened");
         // do something
     }
 
