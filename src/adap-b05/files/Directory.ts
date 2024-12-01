@@ -30,9 +30,8 @@ export class Directory extends Node {
      * @param bn basename of node being searched for
      */
     public override findNodes(bn: string): Set<Node> {
+        const s = super.findNodes(bn);
         try {
-            const s = super.findNodes(bn);
-
             this._findInnerNodes(bn, s);
             return s;
         } catch (e) {
@@ -41,6 +40,8 @@ export class Directory extends Node {
     }
 
     public override _findInnerNodes(bn: string, s: Set<Node>): void {
+        this.assertClassInvariants();
+
         this.childNodes.forEach(node => node._findInnerNodes(bn, s));
     }
 }

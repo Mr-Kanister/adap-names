@@ -89,8 +89,6 @@ export class Node {
     public _findInnerNodes(bn: string, s: Set<Node>) {
         this.assertClassInvariants();
 
-        this.assertIsValidBaseName(bn, ExceptionType.PRECONDITION);
-
         if (bn === this.doGetBaseName()) s.add(this);
     }
 
