@@ -1,4 +1,6 @@
 import { AssertionDispatcher, ExceptionType } from "../common/AssertionDispatcher";
+import { Exception } from "../common/Exception";
+import { ServiceFailureException } from "../common/ServiceFailureException";
 import { Node } from "./Node";
 
 export class Directory extends Node {
@@ -28,11 +30,17 @@ export class Directory extends Node {
      * @param bn basename of node being searched for
      */
     public override findNodes(bn: string): Set<Node> {
-        const res = super.findNodes(bn);
-        
-        if (bn === this.doGetBaseName()) {
-            res.add(this);
+        try {
+            const s = super.findNodes(bn);
+
+            this._findInnerNodes(bn, s);
+            return s;
+        } catch (e) {
+            throw new ServiceFailureException("findNodes() failed", e as Exception);
         }
-        return res;
+    }
+
+    public override _findInnerNodes(bn: string, s: Set<Node>): void {
+        this.childNodes.forEach(node => node._findInnerNodes(bn, s));
     }
 }
