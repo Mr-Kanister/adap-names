@@ -44,16 +44,4 @@ export class Link extends Node {
         const result: Node = this.targetNode as Node;
         return result;
     }
-
-    /**
-     * Returns all nodes in the tree that match bn
-     * @param bn basename of node being searched for
-     */
-    public override findNodes(bn: string): Set<Node> {
-        const res = super.findNodes(bn);
-        if (bn === this.doGetBaseName()) {
-            res.add(this);
-        }
-        return res;
-    }
 }
