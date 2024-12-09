@@ -1,18 +1,13 @@
 import { describe, it, expect } from "vitest";
 
-import { StringName } from "../../../src/adap-b05/names/StringName";
-import { StringArrayName } from "../../../src/adap-b05/names/StringArrayName";
-import { AbstractName } from "../../../src/adap-b05/names/AbstractName";
-import { IllegalArgumentException } from "../../../src/adap-b05/common/IllegalArgumentException";
-import { InvalidStateException } from "../../../src/adap-b05/common/InvalidStateException";
+import { StringName } from "../../../src/adap-b06/names/StringName";
+import { StringArrayName } from "../../../src/adap-b06/names/StringArrayName";
+import { AbstractName } from "../../../src/adap-b06/names/AbstractName";
+import { IllegalArgumentException } from "../../../src/adap-b06/common/IllegalArgumentException";
+import { InvalidStateException } from "../../../src/adap-b06/common/InvalidStateException";
 
 describe("StringArrayName Tests", () => {
   it("test invalid construction", () => {
-    // https://www.studon.fau.de/frm4447999_385940.html
-    // "Ich denke, eine leeres string array zu uebergeben
-    // sollte nicht erlaubt sein (im Constructor)."
-    expect(() => new StringArrayName([])).toThrowError(IllegalArgumentException);
-
     expect(() => new StringArrayName(null as any)).toThrowError(IllegalArgumentException);
     expect(() => new StringArrayName(undefined as any)).toThrowError(IllegalArgumentException);
     expect(() => new StringArrayName(["hallo"], "delimiter")).toThrowError(IllegalArgumentException);
@@ -150,10 +145,10 @@ describe("StringArrayName Tests", () => {
   });
 
   it("test isEmpty()", () => {
-    let n = new StringArrayName([""]);
-    expect(n.isEmpty()).toBe(false);
-    n.remove(0);
-    expect(n.isEmpty()).toBe(true);
+    let n1 = new StringArrayName([""]);
+    expect(n1.isEmpty()).toBe(false);
+    let n2 = n1.remove(0);
+    expect(n2.isEmpty()).toBe(true);
   });
 
   it("test getDelimiterCharacter()", () => {
@@ -171,24 +166,24 @@ describe("StringArrayName Tests", () => {
   });
 
   it("test getNoComponents()", () => {
-    let n = new StringArrayName(["oss"]);
-    n.remove(0);
-    expect(n.getNoComponents()).toBe(0);
+    let n1 = new StringArrayName(["oss"]);
+    let n2 = n1.remove(0);
+    expect(n2.getNoComponents()).toBe(0);
 
-    n = new StringArrayName(["oss"]);
-    expect(n.getNoComponents()).toBe(1);
+    n1 = new StringArrayName(["oss"]);
+    expect(n1.getNoComponents()).toBe(1);
 
-    n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    expect(n.getNoComponents()).toBe(4);
+    n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    expect(n1.getNoComponents()).toBe(4);
 
-    n = new StringArrayName(["oss.cs.fau.de"], "#");
-    expect(n.getNoComponents()).toBe(1);
+    n1 = new StringArrayName(["oss.cs.fau.de"], "#");
+    expect(n1.getNoComponents()).toBe(1);
 
-    n = new StringArrayName(["", "", "", ""], "/");
-    expect(n.getNoComponents()).toBe(4);
+    n1 = new StringArrayName(["", "", "", ""], "/");
+    expect(n1.getNoComponents()).toBe(4);
 
-    n = new StringArrayName(["Oh\\.\\.\\."]);
-    expect(n.getNoComponents()).toBe(1);
+    n1 = new StringArrayName(["Oh\\.\\.\\."]);
+    expect(n1.getNoComponents()).toBe(1);
   });
 
   it("test getComponent()", () => {
@@ -203,127 +198,146 @@ describe("StringArrayName Tests", () => {
 
   it("test setComponent()", () => {
     // precondition
-    let n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    expect(() => n.setComponent(-1, "spam")).toThrowError(IllegalArgumentException);
-    expect(() => n.setComponent(0, ".")).toThrowError(IllegalArgumentException);
+    let n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    expect(() => n1.setComponent(-1, "spam")).toThrowError(IllegalArgumentException);
+    expect(() => n1.setComponent(0, ".")).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    n.setComponent(0, "cip");
-    expect(n.asString()).toBe("cip.cs.fau.de");
+    n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    let n2 = n1.setComponent(0, "cip");
+    expect(n1.asString()).toBe("oss.cs.fau.de");
+    expect(n2.asString()).toBe("cip.cs.fau.de");
 
-    n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    n.setComponent(3, "org");
-    expect(n.asString()).toBe("oss.cs.fau.org");
+    n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    n2 = n1.setComponent(3, "org");
+    expect(n1.asString()).toBe("oss.cs.fau.de");
+    expect(n2.asString()).toBe("oss.cs.fau.org");
 
-    n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    expect(() => n.setComponent(4, "spam")).toThrowError(IllegalArgumentException);
+    n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    expect(() => n1.setComponent(4, "spam")).toThrowError(IllegalArgumentException);
 
   });
 
   it("test insert()", () => {
     // precondition
-    let n = new StringArrayName(["oss", "cs", "fau"]);
-    expect(() => n.insert(-1, "oss")).toThrowError(IllegalArgumentException);
-    expect(() => n.insert(4, "oss")).toThrowError(IllegalArgumentException);
-    expect(() => n.insert(0, ".")).toThrowError(IllegalArgumentException);
+    let n1 = new StringArrayName(["oss", "cs", "fau"]);
+    expect(() => n1.insert(-1, "oss")).toThrowError(IllegalArgumentException);
+    expect(() => n1.insert(4, "oss")).toThrowError(IllegalArgumentException);
+    expect(() => n1.insert(0, ".")).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss", "fau", "de"]);
-    n.insert(1, "cs");
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    n1 = new StringArrayName(["oss", "fau", "de"]);
+    let n2 = n1.insert(1, "cs");
+    expect(n1.asString()).toBe("oss.fau.de");
+    expect(n2.asString()).toBe("oss.cs.fau.de");
 
-    n = new StringArrayName(["oss.fau.de"], "@");
-    n.insert(1, "cs");
-    expect(n.asString()).toBe("oss.fau.de@cs");
+    n1 = new StringArrayName(["oss.fau.de"], "@");
+    n2 = n1.insert(1, "cs");
+    expect(n1.asString()).toBe("oss.fau.de");
+    expect(n2.asString()).toBe("oss.fau.de@cs");
 
-    n = new StringArrayName(["oss", "cs", "de"]);
-    n.insert(2, "fau");
-    expect(n.asString()).toBe("oss.cs.fau.de")
+    n1 = new StringArrayName(["oss", "cs", "de"]);
+    n2 = n1.insert(2, "fau");
+    expect(n1.asString()).toBe("oss.cs.de")
+    expect(n2.asString()).toBe("oss.cs.fau.de")
 
-    n = new StringArrayName(["oss", "cs", "fau"]);
-    n.insert(3, "de");
-    expect(n.asString()).toBe("oss.cs.fau.de")
+    n1 = new StringArrayName(["oss", "cs", "fau"]);
+    n2 = n1.insert(3, "de");
+    expect(n1.asString()).toBe("oss.cs.fau")
+    expect(n2.asString()).toBe("oss.cs.fau.de")
   });
 
   it("test append()", () => {
     // precondition
-    let n = new StringArrayName(["oss", "cs", "fau"]);
-    expect(() => n.append(".")).toThrowError(IllegalArgumentException);
+    let n1 = new StringArrayName(["oss", "cs", "fau"]);
+    expect(() => n1.append(".")).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss.cs.fau.de"], "#");
-    expect(() => n.append("#")).toThrowError(IllegalArgumentException);
+    n1 = new StringArrayName(["oss.cs.fau.de"], "#");
+    expect(() => n1.append("#")).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss", "cs", "fau"]);
-    n.append("de");
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    n1 = new StringArrayName(["oss", "cs", "fau"]);
+    let n2 = n1.append("de");
+    expect(n1.asString()).toBe("oss.cs.fau");
+    expect(n2.asString()).toBe("oss.cs.fau.de");
 
-    n = new StringArrayName(["oss.cs.fau.de"], "#");
-    n.append("people");
-    expect(n.asString()).toBe("oss.cs.fau.de#people");
+    n1 = new StringArrayName(["oss.cs.fau.de"], "#");
+    n2 = n1.append("people");
+    expect(n1.asString()).toBe("oss.cs.fau.de");
+    expect(n2.asString()).toBe("oss.cs.fau.de#people");
 
   });
 
   it("test remove()", () => {
     // precondition
-    let n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    expect(() => n.remove(-1)).toThrowError(IllegalArgumentException);
+    let n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    expect(() => n1.remove(-1)).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    expect(() => n.remove(27)).toThrowError(IllegalArgumentException);
+    n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    expect(() => n1.remove(27)).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    n.remove(0);
-    expect(n.asString()).toBe("cs.fau.de");
+    n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    let n2 = n1.remove(0);
+    expect(n1.asString()).toBe("oss.cs.fau.de");
+    expect(n2.asString()).toBe("cs.fau.de");
 
-    n = new StringArrayName(["oss", "cs", "fau", "de"]);
-    n.remove(3);
-    expect(n.asString()).toBe("oss.cs.fau");
+    n1 = new StringArrayName(["oss", "cs", "fau", "de"]);
+    n2 = n1.remove(3);
+    expect(n1.asString()).toBe("oss.cs.fau.de");
+    expect(n2.asString()).toBe("oss.cs.fau");
 
 
-    n = new StringArrayName(["oss"]);
-    n.remove(0);
-    expect(n.asString()).toBe("");
+    n1 = new StringArrayName(["oss"]);
+    n2 = n1.remove(0);
+    expect(n1.asString()).toBe("oss");
+    expect(n2.asString()).toBe("");
 
     // remove from empty name (precondition)
-    expect(() => n.remove(0)).toThrowError(IllegalArgumentException);
+    expect(() => n2.remove(0)).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss.cs.fau.de", "people"], "#");
-    n.remove(0);
-    expect(n.asString()).toBe("people");
+    n1 = new StringArrayName(["oss.cs.fau.de", "people"], "#");
+    n2 = n1.remove(0);
+    expect(n1.asString()).toBe("oss.cs.fau.de#people");
+    expect(n2.asString()).toBe("people");
 
-    n = new StringArrayName(["oss\\#cs\\#fau\\#de", "people"], "#");
-    n.remove(0);
-    expect(n.asString()).toBe("people");
+    n1 = new StringArrayName(["oss\\#cs\\#fau\\#de", "people"], "#");
+    n2 = n1.remove(0);
+    expect(n1.asString()).toBe("oss#cs#fau#de#people");
+    expect(n2.asString()).toBe("people");
   });
 
   it("test concat()", () => {
     // precondition
-    let n = new StringArrayName(["oss", "cs"]);
-    expect(() => n.concat({} as any)).toThrowError(IllegalArgumentException);
-    expect(() => n.concat(Object.setPrototypeOf({}, StringArrayName))).toThrowError(IllegalArgumentException);
+    let n1 = new StringArrayName(["oss", "cs"]);
+    expect(() => n1.concat({} as any)).toThrowError(IllegalArgumentException);
+    expect(() => n1.concat(Object.setPrototypeOf({}, StringArrayName))).toThrowError(IllegalArgumentException);
 
-    n = new StringArrayName(["oss", "cs"]);
-    n.concat(new StringArrayName(["fau", "de"]));
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    n1 = new StringArrayName(["oss", "cs"]);
+    let n2 = n1.concat(new StringArrayName(["fau", "de"]));
+    expect(n1.asString()).toBe("oss.cs");
+    expect(n2.asString()).toBe("oss.cs.fau.de");
 
-    n = new StringArrayName(["oss", "cs"]);
-    n.concat(new StringName("fau.de"));
-    expect(n.asString()).toBe("oss.cs.fau.de");
+    n1 = new StringArrayName(["oss", "cs"]);
+    n2 = n1.concat(new StringName("fau.de"));
+    expect(n1.asString()).toBe("oss.cs");
+    expect(n2.asString()).toBe("oss.cs.fau.de");
 
-    n = new StringArrayName(["oss\\@cs"], "@");
-    n.concat(new StringArrayName(["fau@de"]));
-    expect(n.asDataString()).toBe("oss@cs.fau@de");
+    n1 = new StringArrayName(["oss\\@cs"], "@");
+    n2 = n1.concat(new StringArrayName(["fau@de"]));
+    expect(n1.asDataString()).toBe("oss@cs");
+    expect(n2.asDataString()).toBe("oss@cs.fau@de");
 
-    n = new StringArrayName(["oss\\.tf", "cs"]);
-    n.concat(new StringArrayName(["fau", "de"]));
-    expect(n.asDataString()).toBe("oss\\.tf.cs.fau.de");
+    n1 = new StringArrayName(["oss\\.tf", "cs"]);
+    n2 = n1.concat(new StringArrayName(["fau", "de"]));
+    expect(n1.asDataString()).toBe("oss\\.tf.cs");
+    expect(n2.asDataString()).toBe("oss\\.tf.cs.fau.de");
 
-    n = new StringArrayName(["oss", "cs"]);
-    n.concat(new StringName("fau@de"));
-    expect(n.asString()).toBe("oss.cs.fau@de");
+    n1 = new StringArrayName(["oss", "cs"]);
+    n2 = n1.concat(new StringName("fau@de"));
+    expect(n1.asString()).toBe("oss.cs");
+    expect(n2.asString()).toBe("oss.cs.fau@de");
 
-    n = new StringArrayName(["oss", "cs"], "/");
-    n.concat(new StringArrayName(["fau\\/", "de"], "/"));
-    expect(n.asDataString()).toBe("oss.cs.fau/.de");
+    n1 = new StringArrayName(["oss", "cs"], "/");
+    n2 = n1.concat(new StringArrayName(["fau\\/", "de"], "/"));
+    expect(n1.asDataString()).toBe("oss.cs");
+    expect(n2.asDataString()).toBe("oss.cs.fau/.de");
   });
 
   it("test getHashCode()", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { checkEscaped } from "../../../src/adap-b05/names/utils";
+import { checkEscaped } from "../../../src/adap-b06/names/utils";
 
 describe("utils Tests", () => {
     it("test checkMasked", () => {

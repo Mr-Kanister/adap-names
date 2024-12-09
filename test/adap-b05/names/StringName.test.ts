@@ -1,10 +1,10 @@
 import { describe, it, expect } from "vitest";
 
-import { StringName } from "../../../src/adap-b04/names/StringName";
-import { StringArrayName } from "../../../src/adap-b04/names/StringArrayName";
-import { AbstractName } from "../../../src/adap-b04/names/AbstractName";
-import { IllegalArgumentException } from "../../../src/adap-b04/common/IllegalArgumentException";
-import { InvalidStateException } from "../../../src/adap-b04/common/InvalidStateException";
+import { StringName } from "../../../src/adap-b05/names/StringName";
+import { StringArrayName } from "../../../src/adap-b05/names/StringArrayName";
+import { AbstractName } from "../../../src/adap-b05/names/AbstractName";
+import { IllegalArgumentException } from "../../../src/adap-b05/common/IllegalArgumentException";
+import { InvalidStateException } from "../../../src/adap-b05/common/InvalidStateException";
 
 function assertAllInvalidState(n: AbstractName) {
   expect(() => n.clone()).toThrowError(InvalidStateException);
